@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8FAFC;
+  --Sidebar: #FFFFFF;
+  --Surface-Elevated: #F1F5F9;
+  --Primary: #7C3AED;
+  --Primary-Hover: #6D28D9;
+  --Accent: #4F46E5;
+  --Text-Primary: #0F172A;
+  --Text-Secondary: #64748B;
+  --User-Bubble: #E2E8F0;
+  --AI-Bubble: #7C3AED;
+  --Border: #E2E8F0;
+  --Success: #16A34A;
+
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-sidebar : var(--Sidebar);
+  --color-surface-elevated : var(--Surface-Elevated);
+  --color-primary : var(--Primary);
+  --color-primary-hover : var(--Primary-Hover);
+  --color-accent : var(--Accent);
+  --color-text-primary : var(--Text-Primary);
+  --color-text-secondary : var(--Text-Secondary);
+  --color-user-bubble : var(--User-Bubble);
+  --color-ai-bubble : var(--AI-Bubble);
+  --color-border : var(--Border);
+  --color-success : var(--Success);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0F0C1A;
+    --Sidebar: #1A1625;
+    --Surface-Elevated: #221E2E;
+    --Primary: #8B5CF6;
+    --Primary-Hover: #A78BFA;
+    --Accent: #6366F1;
+    --Text-Primary: #F8FAFC;
+    --Text-Secondary: #94A3B8;
+    --User-Bobble: #1E293B;
+    --AI-Bobble: #8B5CF6;
+    --Border: #2E2A3A;
+    --Success: #22C55E;
+
   }
 }
 
+.primary-gradient {
+  background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);;
+}
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--Text-Primary);
   font-family: Arial, Helvetica, sans-serif;
 }

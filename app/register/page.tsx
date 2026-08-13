@@ -1,4 +1,3 @@
-// components/RegisterComponent.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -7,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import Image from "next/image";
 import Link from "next/link";
 import { registerUser } from "../lib/actions/auth";
@@ -23,6 +21,10 @@ export default function RegisterComponent() {
         formState: { errors },
     } = useForm<RegisterInput>({
         resolver: zodResolver(RegisterSchema),
+        defaultValues: {
+            avatar_url: "",
+            bio: "",
+        },
     });
 
     const onSubmit = async (data: RegisterInput) => {
@@ -35,7 +37,6 @@ export default function RegisterComponent() {
             if (result?.error) {
                 setError(result.error);
             } else {
-                // ثبت‌نام و لاگین موفق → ریدایرکت به چت
                 router.push("/chat");
                 router.refresh();
             }
@@ -49,22 +50,15 @@ export default function RegisterComponent() {
 
     return (
         <main className="w-screen h-screen flex flex-wrap justify-center gap-5 bg-background">
-            {/* لوگو و عنوان */}
             <div className="w-full flex justify-center items-end pt-10">
                 <div className="flex justify-center items-center gap-3">
-                    <Image
-                        src="/diagram.svg"
-                        alt="logo"
-                        width={40}
-                        height={40}
-                    />
+                    <Image src="/diagram.svg" alt="logo" width={40} height={40} />
                     <h1 className="text-3xl font-bold text-center text-primary capitalize">
                         Register
                     </h1>
                 </div>
             </div>
 
-            {/* فرم */}
             <div className="flex justify-center items-start w-full">
                 <div className="w-full max-w-md mx-auto p-4">
                     {error && (
@@ -76,33 +70,43 @@ export default function RegisterComponent() {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         {/* Full Name */}
                         <div>
-                            <label
-                                htmlFor="fullName"
-                                className="block text-primary font-bold mb-1.5"
-                            >
+                            <label htmlFor="fullName" className="block text-primary font-bold mb-1.5">
                                 Full Name
                             </label>
                             <input
                                 type="text"
                                 id="fullName"
-                                {...register("fullName")}
+                                {...register("full_name")}
                                 className="border-2 border-border rounded-3xl w-full p-3 bg-transparent outline-none focus:border-primary transition-colors"
                                 disabled={isLoading}
                                 placeholder="John Doe"
                             />
-                            {errors.fullName && (
-                                <p className="text-xs text-red-500 mt-1.5">
-                                    {errors.fullName.message}
-                                </p>
+                            {errors.full_name && (
+                                <p className="text-xs text-red-500 mt-1.5">{errors.full_name.message}</p>
+                            )}
+                        </div>
+
+                        {/* Username */}
+                        <div>
+                            <label htmlFor="username" className="block text-primary font-bold mb-1.5">
+                                Username
+                            </label>
+                            <input
+                                type="text"
+                                id="username"
+                                {...register("username")}
+                                className="border-2 border-border rounded-3xl w-full p-3 bg-transparent outline-none focus:border-primary transition-colors"
+                                disabled={isLoading}
+                                placeholder="john_doe"
+                            />
+                            {errors.username && (
+                                <p className="text-xs text-red-500 mt-1.5">{errors.username.message}</p>
                             )}
                         </div>
 
                         {/* Email */}
                         <div>
-                            <label
-                                htmlFor="email"
-                                className="block text-primary font-bold mb-1.5"
-                            >
+                            <label htmlFor="email" className="block text-primary font-bold mb-1.5">
                                 Email
                             </label>
                             <input
@@ -114,18 +118,13 @@ export default function RegisterComponent() {
                                 placeholder="test@test.com"
                             />
                             {errors.email && (
-                                <p className="text-xs text-red-500 mt-1.5">
-                                    {errors.email.message}
-                                </p>
+                                <p className="text-xs text-red-500 mt-1.5">{errors.email.message}</p>
                             )}
                         </div>
 
                         {/* Password */}
                         <div>
-                            <label
-                                htmlFor="password"
-                                className="block text-primary font-bold mb-1.5"
-                            >
+                            <label htmlFor="password" className="block text-primary font-bold mb-1.5">
                                 Password
                             </label>
                             <input
@@ -137,13 +136,46 @@ export default function RegisterComponent() {
                                 placeholder="••••••••"
                             />
                             {errors.password && (
-                                <p className="text-xs text-red-500 mt-1.5">
-                                    {errors.password.message}
-                                </p>
+                                <p className="text-xs text-red-500 mt-1.5">{errors.password.message}</p>
                             )}
                         </div>
 
-                        {/* دکمه ثبت‌نام */}
+                        {/* Avatar URL (optional) */}
+                        <div>
+                            <label htmlFor="avatar_url" className="block text-primary font-bold mb-1.5">
+                                Avatar URL <span className="text-text-secondary font-normal">(optional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="avatar_url"
+                                {...register("avatar_url")}
+                                className="border-2 border-border rounded-3xl w-full p-3 bg-transparent outline-none focus:border-primary transition-colors"
+                                disabled={isLoading}
+                                placeholder="https://example.com/avatar.jpg"
+                            />
+                            {errors.avatar_url && (
+                                <p className="text-xs text-red-500 mt-1.5">{errors.avatar_url.message}</p>
+                            )}
+                        </div>
+
+                        {/* Bio (optional) */}
+                        <div>
+                            <label htmlFor="bio" className="block text-primary font-bold mb-1.5">
+                                Bio <span className="text-text-secondary font-normal">(optional)</span>
+                            </label>
+                            <textarea
+                                id="bio"
+                                {...register("bio")}
+                                rows={3}
+                                className="border-2 border-border rounded-3xl w-full p-3 bg-transparent outline-none focus:border-primary transition-colors resize-none"
+                                disabled={isLoading}
+                                placeholder="Tell us about yourself..."
+                            />
+                            {errors.bio && (
+                                <p className="text-xs text-red-500 mt-1.5">{errors.bio.message}</p>
+                            )}
+                        </div>
+
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -152,21 +184,17 @@ export default function RegisterComponent() {
                             {isLoading ? (
                                 <>
                                     <Loader2 className="w-5 h-5 animate-spin" />
-                                    در حال ثبت‌نام...
+                                    Signing UP
                                 </>
                             ) : (
-                                "ثبت‌نام"
+                                "Sign Up"
                             )}
                         </button>
                     </form>
 
-                    {/* لینک به صفحه لاگین */}
                     <p className="text-center text-sm text-muted-foreground mt-6">
-                        Do you have an account ? {" "}
-                        <Link
-                            href="/login"
-                            className="text-primary font-medium hover:underline"
-                        >
+                        Do you have an account?{" "}
+                        <Link href="/login" className="text-primary font-medium hover:underline">
                             login page
                         </Link>
                     </p>

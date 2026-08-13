@@ -34,7 +34,7 @@ export default function RightSidebar() {
                 </div>
                 <span className="text-[10px] text-text-secondary font-medium hidden xl:block">
                     {
-                        session?.user?.name ?? "sorry"
+                        session?.user?.name ?? "unknown"
                     }
                 </span>
             </div>

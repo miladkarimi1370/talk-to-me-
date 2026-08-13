@@ -31,7 +31,7 @@ export default function ChatLandingPage() {
             <Link
               key={conv.id}
               href={`/chat/${conv.id}`}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-elevated hover:bg-primary/5 border border-border hover:border-primary/30 transition-all group"
+              className="flex cursor-pointer items-center gap-3 px-4 py-3 rounded-xl bg-surface-elevated hover:bg-primary/5 border border-border hover:border-primary/30 transition-all group"
             >
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                 {conv.other_user.full_name?.charAt(0).toUpperCase() || "?"}

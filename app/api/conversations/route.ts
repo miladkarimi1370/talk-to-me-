@@ -2,7 +2,6 @@ import { auth } from "@/app/lib/auth";
 import { supabaseAdmin } from "@/app/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
-// ─── GET: لیست گفتگوهای من ───
 export async function GET() {
   try {
     const session = await auth();
@@ -27,6 +26,7 @@ export async function GET() {
     }
 
     const conversationIds = myParticipants.map((p) => p.conversation_id);
+    console.log("Found conversation IDs:", conversationIds.length, conversationIds);
 
     const { data: conversations, error: cError } = await supabaseAdmin
       .from("conversations")
@@ -34,7 +34,7 @@ export async function GET() {
         `
         id, title, created_by, is_group, created_at, updated_at,
         conversation_participants!inner ( user_id, users ( id, full_name, username, avatar_url, last_seen ) ),
-        messages ( content, created_at )
+        messages ( id, content, created_at, sender_id, read_at )
       `
       )
       .in("id", conversationIds)
@@ -45,17 +45,24 @@ export async function GET() {
       return NextResponse.json({ error: cError.message }, { status: 500 });
     }
 
+    console.log("Raw conversations from DB:", conversations?.length || 0);
+
     const formatted = (conversations || []).map((conv: any) => {
       const other = conv.conversation_participants?.find(
         (p: any) => p.user_id !== userId
       );
       const otherUser = other?.users || {};
+
       const msgs = conv.messages || [];
       msgs.sort(
         (a: any, b: any) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       const lastMsg = msgs[0];
+
+      const unreadCount = msgs.filter(
+        (m: any) => m.sender_id !== userId && !m.read_at
+      ).length;
 
       return {
         id: conv.id,
@@ -74,10 +81,11 @@ export async function GET() {
         last_message: lastMsg
           ? { content: lastMsg.content, created_at: lastMsg.created_at }
           : null,
-        unread_count: 0,
+        unread_count: unreadCount,
       };
     });
 
+    console.log("Formatted conversations:", formatted.length);
     return NextResponse.json(formatted);
   } catch (err: any) {
     console.error("GET /api/conversations error:", err);
@@ -88,7 +96,6 @@ export async function GET() {
   }
 }
 
-// ─── POST: ساخت گفتگوی جدید ───
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -104,7 +111,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // چک کن آیا گفتگوی قبلی هست
     const { data: myConvs } = await supabaseAdmin
       .from("conversation_participants")
       .select("conversation_id")
@@ -125,7 +131,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // گفتگوی جدید
     const { data: conv, error: cErr } = await supabaseAdmin
       .from("conversations")
       .insert({})
@@ -133,7 +138,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (cErr || !conv) {
-      console.error("Insert conversation error:", cErr);
       return NextResponse.json(
         { error: cErr?.message || "Failed to create conversation" },
         { status: 500 }
@@ -148,7 +152,6 @@ export async function POST(request: NextRequest) {
       ]);
 
     if (pErr) {
-      console.error("Insert participants error:", pErr);
       return NextResponse.json({ error: pErr.message }, { status: 500 });
     }
 

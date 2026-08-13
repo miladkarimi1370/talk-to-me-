@@ -9,7 +9,7 @@ import {
   Video,
   MoreVertical,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react"; // ← memo اضافه شد
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { ChangeGeneralTimeToLocalTime } from "../service/changeGeneralTimeToLocalTime";
@@ -20,6 +20,7 @@ import {
   selectAllMessages,
   setActiveConversation,
 } from "../store/chatSlice";
+import { fetchConversations } from "../store/conversationSlice";
 
 interface OtherUser {
   id: string;
@@ -38,12 +39,64 @@ interface TChat {
   created_at: string;
 }
 
+// ←←← کامپوننت جداگانه برای هر پیام — با memo ری-رندر نمی‌شه مگر props تغییر کنه
+const MessageItem = memo(function MessageItem({
+  msg,
+  isMe,
+  otherUserName,
+}: {
+  msg: TChat;
+  isMe: boolean;
+  otherUserName: string;
+}) {
+  return (
+    <div className={`flex ${isMe ? "justify-start" : "justify-end"}`}>
+      <div
+        className={`flex items-end gap-2 max-w-[85%] md:max-w-[70%] ${
+          isMe ? "flex-row-reverse" : "flex-row"
+        }`}
+      >
+        {!isMe && (
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-xs flex-shrink-0 mb-1">
+            {otherUserName?.charAt(0).toUpperCase() || "?"}
+          </div>
+        )}
+
+        <div
+          className={`relative p-3.5 rounded-2xl shadow-sm ${
+            isMe
+              ? "bg-primary text-white rounded-br-none"
+              : "bg-surface-elevated dark:bg-[#1E293B] text-text-primary rounded-bl-none"
+          }`}
+        >
+          <p
+            className={`text-sm font-medium leading-relaxed ${
+              isMe ? "text-white" : "text-text-primary"
+            }`}
+          >
+            {msg.content}
+          </p>
+          <span
+            className={`text-[10px] mt-1.5 block ${
+              isMe
+                ? "text-white/70 text-right"
+                : "text-text-secondary text-left"
+            }`}
+          >
+            {ChangeGeneralTimeToLocalTime(msg.created_at)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function MessageList() {
   const dispatch = useAppDispatch();
   const { data: session } = useSession();
   const params = useParams();
 
-const conversationId = params?.id as string | undefined;
+  const conversationId = params?.id as string | undefined;
 
   const [chat, setChat] = useState("");
   const [search, setSearch] = useState("");
@@ -53,29 +106,48 @@ const conversationId = params?.id as string | undefined;
   const selector = useAppSelector((state) => state.chat);
   const messages = useAppSelector(selectAllMessages);
 
+  // ←←← هدر رو فقط یک بار لود کن — وقتی conversationId عوض بشه
   useEffect(() => {
-    if (!conversationId) return;
+    if (!conversationId) {
+      setLoadingUser(false);
+      return;
+    }
+
+    setLoadingUser(true);
+    let cancelled = false;
 
     async function loadConversation() {
       try {
         const res = await fetch(`/api/conversations/${conversationId}`);
-        if (res.ok) {
+        if (!cancelled && res.ok) {
           const data = await res.json();
           setOtherUser(data.other_user);
         }
       } catch (err) {
         console.error(err);
       } finally {
-        setLoadingUser(false);
+        if (!cancelled) setLoadingUser(false);
       }
     }
 
     loadConversation();
     dispatch(setActiveConversation(conversationId));
     dispatch(fetchMessages({ conversation_id: conversationId }));
+
+    // مارک خوانده شدن
+    fetch(`/api/conversations/${conversationId}/read`, { method: "POST" })
+      .then(() => {
+        dispatch(fetchConversations());
+      })
+      .catch(console.error);
+
+    return () => {
+      cancelled = true;
+    };
   }, [conversationId, dispatch]);
 
-  const buttonHandler = async () => {
+  // ←←← useCallback برای handler — ری-رندر نمی‌شه مگر ضروری
+  const buttonHandler = useCallback(async () => {
     const content = chat.trim();
     if (!content || !conversationId) return;
 
@@ -88,22 +160,45 @@ const conversationId = params?.id as string | undefined;
         role: "user",
       })
     );
-  };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      buttonHandler();
-    }
-  };
+    // ←←← non-blocking: await نکن، فقط fire and forget
+    dispatch(fetchConversations());
+  }, [chat, conversationId, dispatch]);
 
-  const isMe = (msg: TChat) => msg.sender_id === session?.user?.id;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        buttonHandler();
+      }
+    },
+    [buttonHandler]
+  );
 
-  const isOnline = (lastSeen: string | null) => {
+  const isMe = useCallback(
+    (msg: TChat) => msg.sender_id === session?.user?.id,
+    [session?.user?.id]
+  );
+
+  const isOnline = useCallback((lastSeen: string | null) => {
     if (!lastSeen) return false;
     return Date.now() - new Date(lastSeen).getTime() < 2 * 60 * 1000;
-  };
+  }, []);
 
+  // ←←← memoize لیست پیام‌ها — فقط وقتی messages یا otherUser تغییر کنه
+  const messageList = useMemo(() => {
+    if (messages.length === 0) return null;
+    return messages.map((val: TChat) => (
+      <MessageItem
+        key={val.id}
+        msg={val}
+        isMe={isMe(val)}
+        otherUserName={otherUser?.full_name || "?"}
+      />
+    ));
+  }, [messages, otherUser?.full_name, isMe]);
+
+  // ─── RENDER ───
   return (
     <section className="w-full h-full flex flex-col bg-background">
       {/* ═══ هدر چت ═══ */}
@@ -187,53 +282,8 @@ const conversationId = params?.id as string | undefined;
           <div className="flex-1 flex items-center justify-center">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
-        ) : messages.length > 0 ? (
-          messages.map((val: TChat) => {
-            const fromMe = isMe(val);
-            return (
-              <div
-                key={val.id}
-                className={`flex ${fromMe ? "justify-start" : "justify-end"}`}
-              >
-                <div
-                  className={`flex items-end gap-2 max-w-[85%] md:max-w-[70%] ${
-                    fromMe ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  {!fromMe && otherUser && (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-xs flex-shrink-0 mb-1">
-                      {otherUser.full_name?.charAt(0).toUpperCase() || "?"}
-                    </div>
-                  )}
-
-                  <div
-                    className={`relative p-3.5 rounded-2xl shadow-sm ${
-                      fromMe
-                        ? "bg-primary text-white rounded-br-none"
-                        : "bg-surface-elevated dark:bg-[#1E293B] text-text-primary rounded-bl-none"
-                    }`}
-                  >
-                    <p
-                      className={`text-sm font-medium leading-relaxed ${
-                        fromMe ? "text-white" : "text-text-primary"
-                      }`}
-                    >
-                      {val.content}
-                    </p>
-                    <span
-                      className={`text-[10px] mt-1.5 block ${
-                        fromMe
-                          ? "text-white/70 text-right"
-                          : "text-text-secondary text-left"
-                      }`}
-                    >
-                      {ChangeGeneralTimeToLocalTime(val.created_at)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+        ) : messageList ? (
+          messageList
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center px-4 min-h-[300px]">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
@@ -260,7 +310,7 @@ const conversationId = params?.id as string | undefined;
               value={chat}
               onChange={(e) => setChat(e.target.value)}
               onKeyDown={handleKeyDown}
-              disabled={!conversationId || selector.loading}
+              disabled={!conversationId || selector.sending} // ←←← sending به جای loading
             />
             <button className="absolute left-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg cursor-pointer">
               <Mic size={18} className="text-white" />
@@ -269,10 +319,14 @@ const conversationId = params?.id as string | undefined;
 
           <button
             onClick={buttonHandler}
-            disabled={!conversationId || !chat.trim() || selector.loading}
+            disabled={!conversationId || !chat.trim() || selector.sending} // ←←← sending به جای loading
             className="h-full aspect-square rounded-full bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all duration-200 flex items-center justify-center flex-shrink-0 shadow-md hover:shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Send size={20} className="text-white" />
+            {selector.sending ? ( // ←←← sending
+              <Loader2 size={20} className="text-white animate-spin" />
+            ) : (
+              <Send size={20} className="text-white" />
+            )}
           </button>
         </div>
       </div>

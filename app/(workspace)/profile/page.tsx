@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -118,13 +118,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-=======
-export default function Profiles() {
-    return (
-        <>
-
-            <p>Hi this is a Profile component</p>
-        </>
-    )
->>>>>>> 292af5e (add complete project)
 }

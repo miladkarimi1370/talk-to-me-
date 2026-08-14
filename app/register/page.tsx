@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
-// components/RegisterComponent.tsx
->>>>>>> 292af5e (add complete project)
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -10,10 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
-=======
 
->>>>>>> 292af5e (add complete project)
 import Image from "next/image";
 import Link from "next/link";
 import { registerUser } from "../lib/actions/auth";
@@ -29,13 +23,12 @@ export default function RegisterComponent() {
         formState: { errors },
     } = useForm<RegisterInput>({
         resolver: zodResolver(RegisterSchema),
-<<<<<<< HEAD
+
         defaultValues: {
             avatar_url: "",
             bio: "",
         },
-=======
->>>>>>> 292af5e (add complete project)
+
     });
 
     const onSubmit = async (data: RegisterInput) => {
@@ -48,10 +41,7 @@ export default function RegisterComponent() {
             if (result?.error) {
                 setError(result.error);
             } else {
-<<<<<<< HEAD
-=======
-                // ثبت‌نام و لاگین موفق → ریدایرکت به چت
->>>>>>> 292af5e (add complete project)
+
                 router.push("/chat");
                 router.refresh();
             }
@@ -65,31 +55,19 @@ export default function RegisterComponent() {
 
     return (
         <main className="w-screen h-screen flex flex-wrap justify-center gap-5 bg-background">
-<<<<<<< HEAD
+
             <div className="w-full flex justify-center items-end pt-10">
                 <div className="flex justify-center items-center gap-3">
                     <Image src="/diagram.svg" alt="logo" width={40} height={40} />
-=======
-            {/* لوگو و عنوان */}
-            <div className="w-full flex justify-center items-end pt-10">
-                <div className="flex justify-center items-center gap-3">
-                    <Image
-                        src="/diagram.svg"
-                        alt="logo"
-                        width={40}
-                        height={40}
-                    />
->>>>>>> 292af5e (add complete project)
+
                     <h1 className="text-3xl font-bold text-center text-primary capitalize">
                         Register
                     </h1>
                 </div>
             </div>
 
-<<<<<<< HEAD
-=======
-            {/* فرم */}
->>>>>>> 292af5e (add complete project)
+
+
             <div className="flex justify-center items-start w-full">
                 <div className="w-full max-w-md mx-auto p-4">
                     {error && (
@@ -101,29 +79,22 @@ export default function RegisterComponent() {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         {/* Full Name */}
                         <div>
-<<<<<<< HEAD
+
                             <label htmlFor="fullName" className="block text-primary font-bold mb-1.5">
-=======
-                            <label
-                                htmlFor="fullName"
-                                className="block text-primary font-bold mb-1.5"
-                            >
->>>>>>> 292af5e (add complete project)
+
                                 Full Name
                             </label>
                             <input
                                 type="text"
                                 id="fullName"
-<<<<<<< HEAD
+
                                 {...register("full_name")}
-=======
-                                {...register("fullName")}
->>>>>>> 292af5e (add complete project)
+
                                 className="border-2 border-border rounded-3xl w-full p-3 bg-transparent outline-none focus:border-primary transition-colors"
                                 disabled={isLoading}
                                 placeholder="John Doe"
                             />
-<<<<<<< HEAD
+
                             {errors.full_name && (
                                 <p className="text-xs text-red-500 mt-1.5">{errors.full_name.message}</p>
                             )}
@@ -144,25 +115,15 @@ export default function RegisterComponent() {
                             />
                             {errors.username && (
                                 <p className="text-xs text-red-500 mt-1.5">{errors.username.message}</p>
-=======
-                            {errors.fullName && (
-                                <p className="text-xs text-red-500 mt-1.5">
-                                    {errors.fullName.message}
-                                </p>
->>>>>>> 292af5e (add complete project)
+
                             )}
                         </div>
 
                         {/* Email */}
                         <div>
-<<<<<<< HEAD
+
                             <label htmlFor="email" className="block text-primary font-bold mb-1.5">
-=======
-                            <label
-                                htmlFor="email"
-                                className="block text-primary font-bold mb-1.5"
-                            >
->>>>>>> 292af5e (add complete project)
+
                                 Email
                             </label>
                             <input
@@ -174,26 +135,17 @@ export default function RegisterComponent() {
                                 placeholder="test@test.com"
                             />
                             {errors.email && (
-<<<<<<< HEAD
+
                                 <p className="text-xs text-red-500 mt-1.5">{errors.email.message}</p>
-=======
-                                <p className="text-xs text-red-500 mt-1.5">
-                                    {errors.email.message}
-                                </p>
->>>>>>> 292af5e (add complete project)
+
                             )}
                         </div>
 
                         {/* Password */}
                         <div>
-<<<<<<< HEAD
+
                             <label htmlFor="password" className="block text-primary font-bold mb-1.5">
-=======
-                            <label
-                                htmlFor="password"
-                                className="block text-primary font-bold mb-1.5"
-                            >
->>>>>>> 292af5e (add complete project)
+
                                 Password
                             </label>
                             <input
@@ -205,7 +157,7 @@ export default function RegisterComponent() {
                                 placeholder="••••••••"
                             />
                             {errors.password && (
-<<<<<<< HEAD
+
                                 <p className="text-xs text-red-500 mt-1.5">{errors.password.message}</p>
                             )}
                         </div>
@@ -246,15 +198,7 @@ export default function RegisterComponent() {
                             )}
                         </div>
 
-=======
-                                <p className="text-xs text-red-500 mt-1.5">
-                                    {errors.password.message}
-                                </p>
-                            )}
-                        </div>
 
-                        {/* دکمه ثبت‌نام */}
->>>>>>> 292af5e (add complete project)
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -263,34 +207,20 @@ export default function RegisterComponent() {
                             {isLoading ? (
                                 <>
                                     <Loader2 className="w-5 h-5 animate-spin" />
-<<<<<<< HEAD
+
                                     Signing UP
                                 </>
                             ) : (
                                 "Sign Up"
-=======
-                                    در حال ثبت‌نام...
-                                </>
-                            ) : (
-                                "ثبت‌نام"
->>>>>>> 292af5e (add complete project)
+
                             )}
                         </button>
                     </form>
 
-<<<<<<< HEAD
                     <p className="text-center text-sm text-muted-foreground mt-6">
                         Do you have an account?{" "}
                         <Link href="/login" className="text-primary font-medium hover:underline">
-=======
-                    {/* لینک به صفحه لاگین */}
-                    <p className="text-center text-sm text-muted-foreground mt-6">
-                        Do you have an account ? {" "}
-                        <Link
-                            href="/login"
-                            className="text-primary font-medium hover:underline"
-                        >
->>>>>>> 292af5e (add complete project)
+
                             login page
                         </Link>
                     </p>

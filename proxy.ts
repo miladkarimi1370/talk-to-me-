@@ -19,21 +19,13 @@ export async function proxy(req: NextRequest) {
 
   // اگر لاگین نیست و مسیر عمومی هم نیست → برو لاگین
   if (!isLoggedIn && !isPublic) {
-<<<<<<< HEAD
 
-=======
-    console.log("Redirecting to /login");
->>>>>>> 292af5e (add complete project)
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
   // اگر لاگین هست و می‌خواد بره لاگین یا ثبت‌نام → برو چت
   if (isLoggedIn && (pathname === "/login" || pathname === "/register")) {
-<<<<<<< HEAD
 
-=======
-    console.log("Redirecting to /chat");
->>>>>>> 292af5e (add complete project)
     return NextResponse.redirect(new URL("/chat", req.url));
   }
 

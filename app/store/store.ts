@@ -1,13 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { chatSlice } from "./chatSlice";
-import { conversationSlice } from "./conversationSlice";
-import { usersSlice } from "./usersSlice";
+import conversationReducer from "./conversationSlice";
+import usersReducer from "./usersSlice";
+import chatReducer from "./chatSlice";
+import profileReducer from "./profileSlice";
+import themeReducer from "./themeSlice";
+import notificationReducer from "./notificationSlice";
 
 export const store = configureStore({
   reducer: {
-    chat: chatSlice.reducer,
-    conversation: conversationSlice.reducer,
-    users: usersSlice.reducer,
+    conversation: conversationReducer,
+    users: usersReducer,
+    chat: chatReducer,
+    profile: profileReducer,
+    theme: themeReducer,
+    notifications: notificationReducer,
   },
 });
 

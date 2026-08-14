@@ -1,9 +1,15 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "./redux-provider/ReduxProvider";
 import SessionProviderForClientComponent from "./sessionProvider/SessionProvider";
+<<<<<<< HEAD
 import { ThemeProvider } from "./components/ThemeProvider";
+=======
+
+
+>>>>>>> 292af5e (add complete project)
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +33,12 @@ export default function RootLayout({
 }>) {
   return (
     <html
+    
       lang="en"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+<<<<<<< HEAD
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -57,6 +65,19 @@ export default function RootLayout({
             </ThemeProvider>
           </ReduxProvider>
         </SessionProviderForClientComponent>
+=======
+      <body className="min-h-full flex flex-col">
+        <SessionProviderForClientComponent>
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
+        </SessionProviderForClientComponent>
+
+
+
+
+
+>>>>>>> 292af5e (add complete project)
       </body>
     </html>
   );

@@ -4,15 +4,22 @@ import HeaderChatComponent from "../components/HeaderChatComponent";
 import RightSidebar from "../components/RightSidebar";
 
 import "react-toastify/dist/ReactToastify.css";
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 292af5e (add complete project)
 export default function ChatLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 292af5e (add complete project)
             <main className="bg-background w-screen h-screen overflow-hidden">
                 {/* هدر و سایدبار چپ fixed */}
                 <HeaderChatComponent />
@@ -39,8 +46,11 @@ export default function ChatLayout({
                     </div>
                 </div>
             </main>
+<<<<<<< HEAD
     
 
+=======
+>>>>>>> 292af5e (add complete project)
 
 
     );
